@@ -3,29 +3,34 @@ import { Briefcase } from 'lucide-react';
 const Speakers = () => {
   const speakers = [
     {
-      name: 'Jasprit Singh Riyat',
+      name: 'Jaspal Singh Riyat',
       designation: 'Director',
       company: 'Microsoft',
+      image: '/images/speakers/Jaspal Singh Riyat.jpg',
     },
     {
       name: 'Sumeet Tandon',
       designation: 'Director',
       company: 'EY Global Delivery Services',
+      image: '/images/speakers/Sumeet Tandon.jpeg',
     },
     {
       name: 'Amit Bagadia',
       designation: 'Director',
       company: 'PwC India',
+      image: '/images/speakers/Amit Bagadia.jpeg',
     },
     {
       name: 'Arshiya Singh',
       designation: 'Director',
       company: 'Boston Consulting Group (BCG)',
+      image: '/images/speakers/Arshiya Singh.jpeg',
     },
     {
       name: 'Parived Bhatnagar',
       designation: 'HR Director',
       company: 'Accenture',
+      image: '/images/speakers/Parived Bhatnagar.jpeg',
     },
     {
       name: 'Sumedha Bakhshi',
@@ -79,9 +84,17 @@ const Speakers = () => {
                     View Profile
                   </span>
                 </div>
-                <div className="text-6xl font-bold text-blue-700">
-                  {speaker.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
-                </div>
+                {speaker.image ? (
+                  <img
+                    src={speaker.image}
+                    alt={speaker.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="text-6xl font-bold text-blue-700">
+                    {speaker.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                  </div>
+                )}
               </div>
               <div className="p-6">
                 <h3 className="text-lg font-bold text-gray-900 mb-2">{speaker.name}</h3>
