@@ -36,26 +36,31 @@ const Speakers = () => {
       name: 'Sumedha Bakhshi',
       designation: 'HR',
       company: 'Amazon',
+      image: '/images/speakers/Sumedha Bakhshi.jpg',
     },
     {
       name: 'Jyothi Sivaramakrishnan',
       designation: 'Head of Country HR',
       company: 'London Stock Exchange Group',
+      image: '/images/speakers/Jyothi Sivaramakrishnan',
     },
     {
       name: 'Vineet Tandon',
       designation: 'Director, Global Talent Marketing',
       company: 'HCL Tech',
+      image: '/images/speakers/Vineet Tandon.jpeg',
     },
     {
       name: 'Sunit Pareek',
       designation: 'Vice President - Commercial Banking',
       company: 'HSBC',
+      image: '/images/speakers/Sunit Pareek.jpeg',
     },
     {
       name: 'Ashutosh Anshu',
       designation: 'CHRO',
       company: 'Hitachi',
+      image: '/images/speakers/Ashutosh Anshu.jpeg',
     },
   ];
 
