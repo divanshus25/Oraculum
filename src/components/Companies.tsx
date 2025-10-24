@@ -1,20 +1,20 @@
 const Companies = () => {
   const companies = [
-    'Microsoft',
-    'EY',
-    'PwC',
-    'BCG',
-    'Amazon',
-    'Accenture',
-    'HCL Tech',
-    'Hitachi',
-    'HSBC',
-    'London Stock Exchange Group',
-    'Maruti Suzuki',
-    'Genpact',
-    'PayU',
-    'Dabur',
-    'Religare Broking',
+    { name: 'Microsoft', logo: '/images/Microsoft.jpg' },
+    { name: 'EY', logo: '/images/EY.jpg' },
+    { name: 'PwC India', logo: '/images/PwC India.png' },
+    { name: 'Boston Consulting Group', logo: '/images/Boston Consulting Group.png' },
+    { name: 'Amazon' },
+    { name: 'Accenture', logo: '/images/Accenture.png' },
+    { name: 'HCL Tech' },
+    { name: 'Hitachi' },
+    { name: 'HSBC' },
+    { name: 'London Stock Exchange Group' },
+    { name: 'Maruti Suzuki' },
+    { name: 'Genpact' },
+    { name: 'PayU' },
+    { name: 'Dabur' },
+    { name: 'Religare Broking' },
   ];
 
   return (
@@ -39,9 +39,17 @@ const Companies = () => {
               key={index}
               className="bg-white rounded-xl border border-gray-200 p-6 flex items-center justify-center hover:shadow-lg hover:border-blue-300 transition-all group min-h-[120px]"
             >
-              <span className="text-center text-sm font-semibold text-gray-700 group-hover:text-blue-600 transition-colors">
-                {company}
-              </span>
+              {company.logo ? (
+                <img
+                  src={company.logo}
+                  alt={company.name}
+                  className="max-w-full max-h-16 w-auto h-auto object-contain grayscale group-hover:grayscale-0 transition-all"
+                />
+              ) : (
+                <span className="text-center text-sm font-semibold text-gray-700 group-hover:text-blue-600 transition-colors">
+                  {company.name}
+                </span>
+              )}
             </div>
           ))}
         </div>
