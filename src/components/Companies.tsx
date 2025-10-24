@@ -1,11 +1,11 @@
 const Companies = () => {
   const companies = [
-    { name: 'Microsoft', logo: '/images/Microsoft.jpg' },
-    { name: 'EY', logo: '/images/EY.jpg' },
-    { name: 'PwC India', logo: '/images/PwC India.png' },
-    { name: 'Boston Consulting Group', logo: '/images/Boston Consulting Group.png' },
+    { name: 'Microsoft', logo: '/images/Microsoft.png' },
+    { name: 'EY', logo: '/images/EY.png' },
+    { name: 'PwC India', logo: '/images/PwC.png' },
+    { name: 'Boston Consulting Group', logo: '/images/Boston Consulting Group copy.png' },
     { name: 'Amazon' },
-    { name: 'Accenture', logo: '/images/Accenture.png' },
+    { name: 'Accenture', logo: '/images/Accenture copy.png' },
     { name: 'HCL Tech' },
     { name: 'Hitachi' },
     { name: 'HSBC' },
@@ -43,7 +43,7 @@ const Companies = () => {
                 <img
                   src={company.logo}
                   alt={company.name}
-                  className="max-w-full max-h-16 w-auto h-auto object-contain grayscale group-hover:grayscale-0 transition-all"
+                  className="max-w-full max-h-16 w-auto h-auto object-contain transition-transform group-hover:scale-110"
                 />
               ) : (
                 <span className="text-center text-sm font-semibold text-gray-700 group-hover:text-blue-600 transition-colors">
