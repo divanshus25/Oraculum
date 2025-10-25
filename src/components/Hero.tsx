@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import AnimatedShaderBackground from './ui/animated-shader-background';
 
 const Hero = () => {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
@@ -26,7 +25,14 @@ const Hero = () => {
 
   return (
     <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      <AnimatedShaderBackground />
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-blue-400 to-blue-200">
+        <div className="absolute inset-0">
+          <div className="absolute top-20 left-10 w-72 h-1 bg-white/20 transform -rotate-45 animate-pulse"></div>
+          <div className="absolute bottom-32 right-20 w-96 h-1 bg-white/20 transform rotate-45 animate-pulse delay-1000"></div>
+          <div className="absolute top-40 right-32 w-48 h-1 bg-white/20 transform -rotate-12"></div>
+          <div className="absolute bottom-48 left-24 w-64 h-1 bg-white/20 transform rotate-12"></div>
+        </div>
+      </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
         <div className="mb-12">
