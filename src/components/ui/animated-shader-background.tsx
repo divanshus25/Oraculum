@@ -29,6 +29,7 @@ const AnimatedShaderBackground = () => {
         uniform vec2 iResolution;
 
         #define NUM_OCTAVES 3
+        #define NUM_STREAKS 8.0
 
         float rand(vec2 n) {
           return fract(sin(dot(n, vec2(12.9898, 4.1414))) * 43758.5453);
@@ -58,30 +59,66 @@ const AnimatedShaderBackground = () => {
           return v;
         }
 
+        float streak(vec2 uv, vec2 pos, float angle, float length, float width) {
+          vec2 dir = vec2(cos(angle), sin(angle));
+          vec2 diff = uv - pos;
+          float proj = dot(diff, dir);
+          float dist = length(diff - dir * proj);
+
+          float alongStreak = smoothstep(length, 0.0, proj) * smoothstep(-0.1, 0.0, proj);
+          float acrossStreak = smoothstep(width, 0.0, dist);
+
+          return alongStreak * acrossStreak;
+        }
+
         void main() {
-          vec2 shake = vec2(sin(iTime * 1.2) * 0.005, cos(iTime * 2.1) * 0.005);
-          vec2 p = ((gl_FragCoord.xy + shake * iResolution.xy) - iResolution.xy * 0.5) / iResolution.y * mat2(6.0, -4.0, 4.0, 6.0);
-          vec2 v;
-          vec4 o = vec4(0.0);
+          vec2 uv = gl_FragCoord.xy / iResolution.xy;
+          vec2 centered = (gl_FragCoord.xy - iResolution.xy * 0.5) / iResolution.y;
 
-          float f = 2.0 + fbm(p + vec2(iTime * 5.0, 0.0)) * 0.5;
+          vec3 color = vec3(0.0, 0.0, 0.02);
 
-          for (float i = 0.0; i < 35.0; i++) {
-            v = p + cos(i * i + (iTime + p.x * 0.08) * 0.025 + i * vec2(13.0, 11.0)) * 3.5 + vec2(sin(iTime * 3.0 + i) * 0.003, cos(iTime * 3.5 - i) * 0.003);
-            float tailNoise = fbm(v + vec2(iTime * 0.5, i)) * 0.3 * (1.0 - (i / 35.0));
-            vec4 auroraColors = vec4(
-              0.1 + 0.3 * sin(i * 0.2 + iTime * 0.4),
-              0.3 + 0.5 * cos(i * 0.3 + iTime * 0.5),
-              0.7 + 0.3 * sin(i * 0.4 + iTime * 0.3),
-              1.0
+          for (float i = 0.0; i < NUM_STREAKS; i++) {
+            float seed = i * 234.567;
+            float timeOffset = rand(vec2(seed, seed + 1.0)) * 10.0;
+            float t = iTime * 0.3 + timeOffset;
+
+            float xStart = rand(vec2(seed, 0.0)) * 2.0 - 0.5;
+            float yStart = rand(vec2(seed, 1.0)) * 2.0 - 0.5;
+
+            float angle = -0.5 - rand(vec2(seed, 2.0)) * 0.3;
+            float speed = 0.3 + rand(vec2(seed, 3.0)) * 0.4;
+
+            vec2 pos = vec2(
+              xStart + cos(angle) * t * speed,
+              yStart + sin(angle) * t * speed
             );
-            vec4 currentContribution = auroraColors * exp(sin(i * i + iTime * 0.8)) / length(max(v, vec2(v.x * f * 0.015, v.y * 1.5)));
-            float thinnessFactor = smoothstep(0.0, 1.0, i / 35.0) * 0.6;
-            o += currentContribution * (1.0 + tailNoise * 0.8) * thinnessFactor;
+
+            pos = mod(pos + 1.5, 3.0) - 1.5;
+
+            float streakLength = 0.3 + rand(vec2(seed, 4.0)) * 0.4;
+            float streakWidth = 0.002 + rand(vec2(seed, 5.0)) * 0.003;
+
+            float s = streak(centered, pos, angle, streakLength, streakWidth);
+
+            float colorVar = rand(vec2(seed, 6.0));
+            vec3 streakColor;
+            if (colorVar < 0.6) {
+              streakColor = vec3(0.0, 0.6 + colorVar * 0.4, 1.0);
+            } else {
+              streakColor = vec3(0.0, 1.0, 0.8);
+            }
+
+            float fadeIn = smoothstep(0.0, 0.1, fract(t / 3.0));
+            float fadeOut = smoothstep(1.0, 0.9, fract(t / 3.0));
+            float fade = fadeIn * fadeOut;
+
+            color += streakColor * s * fade * 0.8;
           }
 
-          o = tanh(pow(o / 100.0, vec4(1.6)));
-          gl_FragColor = o * 1.5;
+          float vignette = smoothstep(1.2, 0.3, length(centered));
+          color *= vignette;
+
+          gl_FragColor = vec4(color, 1.0);
         }
       `
     });
