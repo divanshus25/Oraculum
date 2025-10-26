@@ -28,95 +28,73 @@ const AnimatedShaderBackground = () => {
         uniform float iTime;
         uniform vec2 iResolution;
 
-        #define NUM_OCTAVES 3
-        #define NUM_STREAKS 8.0
-
         float rand(vec2 n) {
           return fract(sin(dot(n, vec2(12.9898, 4.1414))) * 43758.5453);
         }
 
-        float noise(vec2 p) {
-          vec2 ip = floor(p);
-          vec2 u = fract(p);
-          u = u*u*(3.0-2.0*u);
+        float drawStreak(vec2 uv, vec2 startPos, vec2 endPos, float width) {
+          vec2 pa = uv - startPos;
+          vec2 ba = endPos - startPos;
+          float h = clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0);
+          float dist = length(pa - ba * h);
 
-          float res = mix(
-            mix(rand(ip), rand(ip + vec2(1.0, 0.0)), u.x),
-            mix(rand(ip + vec2(0.0, 1.0)), rand(ip + vec2(1.0, 1.0)), u.x), u.y);
-          return res * res;
-        }
+          float streak = smoothstep(width, 0.0, dist);
+          float fade = pow(1.0 - h, 2.0);
 
-        float fbm(vec2 x) {
-          float v = 0.0;
-          float a = 0.3;
-          vec2 shift = vec2(100);
-          mat2 rot = mat2(cos(0.5), sin(0.5), -sin(0.5), cos(0.5));
-          for (int i = 0; i < NUM_OCTAVES; ++i) {
-            v += a * noise(x);
-            x = rot * x * 2.0 + shift;
-            a *= 0.4;
-          }
-          return v;
-        }
-
-        float streak(vec2 uv, vec2 pos, float angle, float length, float width) {
-          vec2 dir = vec2(cos(angle), sin(angle));
-          vec2 diff = uv - pos;
-          float proj = dot(diff, dir);
-          float dist = length(diff - dir * proj);
-
-          float alongStreak = smoothstep(length, 0.0, proj) * smoothstep(-0.1, 0.0, proj);
-          float acrossStreak = smoothstep(width, 0.0, dist);
-
-          return alongStreak * acrossStreak;
+          return streak * fade;
         }
 
         void main() {
-          vec2 uv = gl_FragCoord.xy / iResolution.xy;
-          vec2 centered = (gl_FragCoord.xy - iResolution.xy * 0.5) / iResolution.y;
+          vec2 uv = (gl_FragCoord.xy - 0.5 * iResolution.xy) / iResolution.y;
 
-          vec3 color = vec3(0.0, 0.0, 0.02);
+          vec3 color = vec3(0.01, 0.01, 0.05);
 
-          for (float i = 0.0; i < NUM_STREAKS; i++) {
-            float seed = i * 234.567;
-            float timeOffset = rand(vec2(seed, seed + 1.0)) * 10.0;
-            float t = iTime * 0.3 + timeOffset;
+          for (float i = 0.0; i < 12.0; i++) {
+            float seed = i * 43.758;
+            float offset = rand(vec2(seed, 0.0)) * 100.0;
+            float t = mod(iTime * 0.4 + offset, 8.0);
 
-            float xStart = rand(vec2(seed, 0.0)) * 2.0 - 0.5;
-            float yStart = rand(vec2(seed, 1.0)) * 2.0 - 0.5;
+            float phase = t / 8.0;
+            float fadeIn = smoothstep(0.0, 0.05, phase);
+            float fadeOut = smoothstep(0.95, 1.0, phase);
+            float visibility = fadeIn * (1.0 - fadeOut);
 
-            float angle = -0.5 - rand(vec2(seed, 2.0)) * 0.3;
-            float speed = 0.3 + rand(vec2(seed, 3.0)) * 0.4;
+            if (visibility < 0.01) continue;
 
-            vec2 pos = vec2(
-              xStart + cos(angle) * t * speed,
-              yStart + sin(angle) * t * speed
-            );
+            float startX = -1.5 + rand(vec2(seed, 1.0)) * 0.8;
+            float startY = 1.2 - rand(vec2(seed, 2.0)) * 0.4;
 
-            pos = mod(pos + 1.5, 3.0) - 1.5;
+            float angle = -2.2 - rand(vec2(seed, 3.0)) * 0.6;
+            float speed = 1.2 + rand(vec2(seed, 4.0)) * 0.8;
+            float dist = t * speed;
 
-            float streakLength = 0.3 + rand(vec2(seed, 4.0)) * 0.4;
-            float streakWidth = 0.002 + rand(vec2(seed, 5.0)) * 0.003;
+            vec2 dir = vec2(cos(angle), sin(angle));
+            vec2 startPos = vec2(startX, startY);
+            vec2 endPos = startPos + dir * dist;
 
-            float s = streak(centered, pos, angle, streakLength, streakWidth);
+            float trailLength = 0.15 + rand(vec2(seed, 5.0)) * 0.2;
+            vec2 trailStart = endPos - dir * trailLength;
 
-            float colorVar = rand(vec2(seed, 6.0));
+            float width = 0.003 + rand(vec2(seed, 6.0)) * 0.004;
+            float intensity = drawStreak(uv, trailStart, endPos, width);
+
             vec3 streakColor;
-            if (colorVar < 0.6) {
-              streakColor = vec3(0.0, 0.6 + colorVar * 0.4, 1.0);
+            float colorChoice = rand(vec2(seed, 7.0));
+            if (colorChoice < 0.4) {
+              streakColor = vec3(0.1, 0.8, 1.0);
+            } else if (colorChoice < 0.7) {
+              streakColor = vec3(0.0, 0.9, 1.0);
             } else {
-              streakColor = vec3(0.0, 1.0, 0.8);
+              streakColor = vec3(0.2, 1.0, 0.9);
             }
 
-            float fadeIn = smoothstep(0.0, 0.1, fract(t / 3.0));
-            float fadeOut = smoothstep(1.0, 0.9, fract(t / 3.0));
-            float fade = fadeIn * fadeOut;
-
-            color += streakColor * s * fade * 0.8;
+            float brightness = 1.5 + rand(vec2(seed, 8.0)) * 1.0;
+            color += streakColor * intensity * visibility * brightness;
           }
 
-          float vignette = smoothstep(1.2, 0.3, length(centered));
-          color *= vignette;
+          vec2 center = uv;
+          float vignette = 1.0 - smoothstep(0.4, 1.3, length(center));
+          color *= (0.7 + 0.3 * vignette);
 
           gl_FragColor = vec4(color, 1.0);
         }
